@@ -1,0 +1,62 @@
+#!/usr/bin/expect
+
+# Author: F. Dennis Periquet Jan 15, 2017
+# Simple script example that you can use to pattern all scripts after (or
+# at least the simple ones.
+#
+# Uses expect for two sessions to be someone general case.
+#
+
+
+# Make up your own utilities.
+#
+source automationUtils.tcl
+
+set p1  [lindex $argv 0]
+set p2  [lindex $argv 1]
+set p3  [lindex $argv 2]
+set p4  [lindex $argv 3]
+set p5  [lindex $argv 4]
+set p6  [lindex $argv 5]
+
+if {$p6 == ""} {
+  puts " "
+  puts "  Usage: ./automate.exp <HostName1> <HostName2> <Param3> <Param4> <Param5> <debug>"
+  puts "    Will run some stuff on two Linux systems host1 and host2>"
+  puts " "
+  exit
+}
+
+set host1 $p1
+set host2 $p2
+set xx3 $p3
+set xx4 $p4
+set xx5 $p5
+set debug $p6
+
+log_user $debug
+set timeout 10
+
+spawn ssh $host1
+set id1 $spawn_id
+expect "#"
+
+spawn ssh $host2
+set id2 $spawn_id
+expect "#"
+
+log_msg INFO "Adding a log for a linux1 setup"
+exp_send -i $id1 "cat /etc/redhat-redlease\r"
+expect -i $id1 "#"
+puts $expect_out(buffer)
+
+log_msg INFO "Adding a log for a linux2 setup"
+exp_send -i $id2 "cat /etc/redhat-redlease\r"
+expect -i $id2 "#"
+puts $expect_out(buffer)
+
+exp_close -i $id1
+exp_wait -i $id1
+exp_close -i $id2
+exp_wait -i $id2
+
